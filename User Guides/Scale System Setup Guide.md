@@ -6,6 +6,8 @@ The weighing is conducted by placing a load-cell-based weighing device (scale) i
 
 Each Scale System is capable of connecting up to 8 weighing devices per microcontroller with the help of another breakout board (MUX), which enables communication with multiple I2C devices simultaneously.
 
+---
+
 ## 2. Part list
 The Scale System consists of the following items:
   1. Raspberry Pi (or similar) minicomputer
@@ -33,8 +35,9 @@ see [general part list](link) for full list of parts and where to get them.
 ### Assembly
 See [Scale System assembly guide](https://github.com/NeuralSyntaxLab/Bird-Scale-Methods-Article/blob/main/User%20Guides/Scale%20System%20Assembly%20Guide.md) for assembly instructions for each part.
 
-## 3. Wiring the Scale System 
+---
 
+## 3. Wiring the Scale System 
 
 Before operating the Scale System setup, follow these instructions to connect all the pieces together:
 1. Open the control box, and connect as many docking points (NAU7802 board + Pigtail connector male) to the MUX as you plan to use (When adding/removig scales at any point, it will be neccesary to stop the main script, open the box and re-wire the docking points. NAU7802 boards that are connected to the MUX but not to a scale can cause issues with the code). Write down under each docking point to which channel on the MUX board it is connected to.
@@ -53,10 +56,121 @@ Before operating the Scale System setup, follow these instructions to connect al
 6. Connect the Arduino microcontroller to the minicomputer.
 7. Connect the minicomputer to the power source, screen, keyboard and mouse. Continue to the next step to operate the system on the minicomputer.
 
-## 4. Operating the system
-Once the system is up and connected, wait for the minicomputer to start up and follow the instructions:
+---
 
-### 1. Calibrating the scales
+## 4. Operating the system
+Once the system is up and connected, wait for the minicomputer (or any platform you are using) to start up and follow the instructions:
+
+### 4.1.1 Overview
+
+The Python code included in this repository provides a **complete data-acquisition pipeline** for the perch-scale system. It continuously communicates with the Arduino, receives up to eight weight measurements each second, organizes them according to the **channel → bird ID** mapping in the config file, and saves **per-bird CSV reports** to the designated output directory.
+
+This repository provides:
+
+- The **acquisition script** (`scale_main_code.py`) that manages serial communication, parsing, organization, and long-term logging of weights.  
+- A **YAML config file** (`config_1.yaml`) that defines:  
+  - Which bird is connected to each MUX/Arduino **channel**  
+  - The **save directory** for all weight reports  
+  - A short **system/room identifier** used in directory naming  
+- An optional **startup_script.sh** (to be added) for running the acquisition automatically at boot on Linux systems.
+
+**What this repository does *not* cover:**  
+General operating-system setup (installing Raspberry Pi OS, configuring USB serial permissions, networking, etc.). Any functioning Linux/macOS/Windows environment that can run Python and access the Arduino serial port is compatible.
+
+### 4.1.2 How the code works 
+
+1. The config file is loaded and its parameters are stored as variables for use in the script.
+2. The script detects and opens the Arduino’s serial port automatically.  
+3. Every second, the Arduino sends a packet of **eight weight values**, one per channel.  
+4. The script:  
+   - Matches each channel to its configured **bird ID**,  
+   - Appends a timestamp,  
+   - Accumulates one minute of readings,  
+   - Saves them as **per-bird CSV files** inside:  
+     ```
+     <scaleOutputBasePath>/weight_reports/<bird_id>/<bird_id>_weight_report.csv
+     ```
+
+This loop runs indefinitely, enabling continuous 24/7 monitoring.
+
+### 4.1.3 Requirements and first-time setup
+
+To run the system on any computer:
+
+#### 1. **Install Python 3.7+**  
+   Works on Raspberry Pi OS, Ubuntu/Linux, macOS, or Windows.
+
+#### 2. **Clone the repository**
+   ```bash
+   git clone <repo-url>
+   cd <repo-folder>
+```
+
+#### 3. Create a Python environment (recommended)
+```bash
+python3 -m venv .venv
+source .venv/bin/activate   # Linux/macOS
+# .venv\Scripts\activate    # Windows
+```
+
+#### 4. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+#### 5. Prepare your config file (`config_1.yaml`)
+- Assign a **bird ID** for each active channel (0–7), or use `null` for unused channels.  
+- Set the **scaleOutputBasePath** (the folder where weight files will be stored).  
+- Optionally set the **room/system name**.
+
+For further instructions see section [4.3 Editing the Config file](#43-editing-the-config-file).
+
+#### 6. Connect the Arduino
+The script automatically tries common serial port names on Linux, macOS, and Windows.
+
+---
+
+### **4.2.1 Running the script manually**
+
+After updating your config file, run the acquisition program with:
+
+```bash
+python /path/to/scale_main_code.py --config=/path/to/config_1.yaml
+```
+Remember to modify the bash script permission.
+in the terminal type : 
+```bash
+chmod +x path/to/script/startup_script.sh
+```
+
+You should see confirmation of the detected serial port and the loaded configuration.
+
+### **4.2.2 Running automatically on startup (Linux)**
+
+To automatically run the script when the machine turns on:
+
+1. Modify the bash script permission. in Terminal type : `chmod +x path/to/script/startup_script.sh`. 
+2. In terminal Type `sudo nano /etc/xdg/lxsession/LXDE-pi/autostart`
+3. Add the following command to the end of the file - 
+`@lxterminal -e /path/to/script/startup_script.sh`
+  save and exit terminal.
+
+## 4.3 Editing the config file
+
+After downloading this repository to your computer, you will find the `config_1.yaml` file in the `Python code` folder. Open the config file [example here](https://github.com/NeuralSyntaxLab/Bird-Scale-Methods-Article/blob/f04243c847f9a7968533611af24f28679061ca57/Python%20code/config_1.yaml).
+
+Here, you will need to enter the names of the birds that have weighing devices in their cage in the `Channels` section.
+Each docking port (channel) is connected to one scale. Write the name of the bird that is connected to each channel, with apostrophes.
+You also need to make sure to create a directory for the output data to be stored. Enter the full path to that directory in `scaleOutputBasePath`. 
+
+For example - 'bird1' is in the acoustic chamber with the scale connected to channel 0. 'bird2' is in the acoustic chamber that is connected to channel 7. 
+
+![config_file_Example](https://github.com/user-attachments/assets/8482665c-0115-4641-b4a7-a390242a44bc)
+
+
+### 4.4 Calibrating the scales
+
+#### 4.4.1 Calibrate the scales on the Arduino serial monitor platform
 1. If running, stop the main control script (`scale_main_code.py`).
 2. Load Arduino with [arduino_code_calibrate](https://github.com/NeuralSyntaxLab/Bird-Scale-Methods-Article/blob/2b2e9f8543eca7a4c572af648797234ceb79ad54/arduino_code/arduino_code_calibrate/arduino_code_calibrate.ino).
 3. Open the Serial Monitor: <br>
@@ -97,24 +211,15 @@ Now every second a new line of data is given. We can see that it is a used setup
 9. In order to calibrate the scale on port 6, enter `c` in the message panel again and choose port 6.
 
 
-### 2. Edit config file
-After downloading this repository to your computer, you will find the `config_1.yaml` file in the `Python code` folder. Open the config file [example here](https://github.com/NeuralSyntaxLab/Bird-Scale-Methods-Article/blob/f04243c847f9a7968533611af24f28679061ca57/Python%20code/config_1.yaml).
+#### 4.4.2. Re-adjust the config file accordingly
+Change any bird - channel indexing according to the instructions in section [Editing the config file](#43-editing-the-config-file).
 
-Here, you will need to enter the names of the birds that have weighing devices in their cage in the `Channels` section.
-Each docking port (channel) is connected to one scale. Write the name of the bird that is connected to each channel, with apostrophes.
-You also need to make sure to create a directory for the output data to be stored. Enter the full path to that directory in `scaleOutputBasePath`. 
-
-For example - 'bird1' is in the acoustic chamber with the scale connected to channel 0. 'bird2' is in the acoustic chamber that is connected to channel 7. 
-
-![config_file_Example](https://github.com/user-attachments/assets/8482665c-0115-4641-b4a7-a390242a44bc)
-
-
-### 3. Re-run the main control script
+#### 4.4.3. Re-run the main control script
 After calibrating the scales and updating the config file, the system is ready to go.
 In order to run the main control script, simply reboot the minicomputer. The script should run automatically at startup.
 
 * It is recommended to test the system to see that it works properly before leaving it to run. You can run the script by ...
-* You can also open the terminal and run the following comand (Change paths accordingly):
+* You can also open the terminal and run the following command (Change paths accordingly):
 ```
 python /path/to/script/main_control.py --config=/path/to/config/file
 ```
