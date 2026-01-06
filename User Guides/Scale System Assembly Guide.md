@@ -3,9 +3,9 @@ The self-build scale consists of the following items:
 * Mini load cell 500g
 * 3D printed perch, customized to be screwed onto the load cell
 * Cylindrical steel weight, also customized to screw the load cell onto it
-* 4-pin connector, to easily connect and disconnect the scale to/from the control system (for example - [Circuit Picoblade Male-to-Female plug 425mm (multiple)](link))
+* 4-pin connector, to easily connect and disconnect the scale to/from the control system.
 
-see [scale design](https://github.com/NeuralSyntaxLab/acoustic_chamber_environment_control/tree/0fc50bf446f8784b286c2851cd4cca4fbe7e9609/scale_system_documentation) for further information and specifics.
+see [parts list](https://github.com/NeuralSyntaxLab/perch-scale-system/blob/main/Scale_system_parts_list.xlsx) for further information and specifics.
 
 To asemble the scale:
 1. Solder the wires of the load cell to a 4-pin connector
