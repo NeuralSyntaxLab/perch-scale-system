@@ -21,12 +21,12 @@ The Scale System consists of the following items:
      1. Mini load cell 500g
      2. 3D printed perch, customized to be screwed onto the load cell
      3. Cylindrical steel weight, also customized to screw the load cell onto it
-     4. 4-pin connector, to easily connect and disconnect the scale to/from the control system (for example - [Circuit Picoblade Male-to-Female plug 425mm (multiple)](link))
+     4. 4-pin connector, to easily connect and disconnect the scale to/from the control system.
   5. Communication cables
      1. 4-PIN JSM-ST Pigtail connector (female)
      2. Circuit Picoblade Male-to-Female plug 425mm
 
-see [general part list](link) for full list of parts and where to get them.
+see [general part list](https://github.com/NeuralSyntaxLab/perch-scale-system/blob/main/Scale_system_parts_list.xlsx) for full list of parts and where to get them.
 
 ### Scale System setup schematic overview
 
