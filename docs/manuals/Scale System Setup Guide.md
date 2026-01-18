@@ -26,14 +26,19 @@ The Scale System consists of the following items:
      1. 4-PIN JSM-ST Pigtail connector (female)
      2. Circuit Picoblade Male-to-Female plug 425mm
 
-see [general part list](https://github.com/NeuralSyntaxLab/perch-scale-system/blob/main/Scale_system_parts_list.xlsx) for full list of parts and where to get them.
+see [general part list](https://github.com/NeuralSyntaxLab/perch-scale-system/tree/main/docs/parts) for full list of parts and where to get them.
 
 ### Scale System setup schematic overview
 
-<img src = "https://github.com/user-attachments/assets/6afa6e9a-1b17-4121-80c2-9fbb5fe0f42a" width = "1180" height = "800"> <br>
+<figure>
+  <img src="../images/scale_system_schematic_overview_1.png" alt="Scale system schematic overview diagram", width="1000">
+  <figcaption>
+    <strong>Figure 1.</strong> Schematic overview of the scale system and its components.
+  </figcaption>
+</figure>
 
 ### Assembly
-See [Scale System assembly guide](https://github.com/NeuralSyntaxLab/Bird-Scale-Methods-Article/blob/main/User%20Guides/Scale%20System%20Assembly%20Guide.md) for assembly instructions for each part.
+See [Scale System assembly guide](https://github.com/NeuralSyntaxLab/perch-scale-system/blob/main/docs/manuals/Scale%20System%20Assembly%20Guide.md) for assembly instructions for each part.
 
 ---
 
@@ -50,8 +55,12 @@ Before operating the Scale System setup, follow these instructions to connect al
   * Yellow pin (signal) - to 'SCL' channel
   * Blue pin (signal) - to 'SDA' channel
 
-<img src = "https://github.com/user-attachments/assets/87bd1f43-7030-40bb-8998-025d49eb796a" width = "925" height = "650"> <br>
-
+<figure>
+  <img src="../images/scale_system_wiring_scheme_1.png" alt="Scale system wiring", width="925">
+  <figcaption>
+    <strong>Figure 2.</strong> Scale system wiring scheme.
+  </figcaption>
+</figure>
 
 6. Connect the Arduino microcontroller to the minicomputer.
 7. Connect the minicomputer to the power source, screen, keyboard and mouse. Continue to the next step to operate the system on the minicomputer.
@@ -157,7 +166,7 @@ To automatically run the script when the machine turns on:
 
 ## 4.3 Editing the config file
 
-After downloading this repository to your computer, you will find the `config_1.yaml` file in the `Python code` folder. Open the config file [example here](https://github.com/NeuralSyntaxLab/Bird-Scale-Methods-Article/blob/f04243c847f9a7968533611af24f28679061ca57/Python%20code/config_1.yaml).
+After downloading this repository to your computer, you will find the `config_1.yaml` file in the `Python code` folder. Open the config file [example here](https://github.com/NeuralSyntaxLab/perch-scale-system/blob/main/src/main/config_1.yaml).
 
 Here, you will need to enter the names of the birds that have weighing devices in their cage in the `Channels` section.
 Each docking port (channel) is connected to one scale. Write the name of the bird that is connected to each channel, with apostrophes.
@@ -165,16 +174,28 @@ You also need to make sure to create a directory for the output data to be store
 
 For example - 'bird1' is in the acoustic chamber with the scale connected to channel 0. 'bird2' is in the acoustic chamber that is connected to channel 7. 
 
-![config_file_Example](https://github.com/user-attachments/assets/8482665c-0115-4641-b4a7-a390242a44bc)
-
+<figure>
+  <img src="../images/config_file_example_1.png" alt="Example of the configuration file", width="1200">
+  <figcaption>
+    <strong>Figure 3.</strong> Example of the configuration file.
+  </figcaption>
+</figure>
 
 ### 4.4 Calibrating the scales
 
 #### 4.4.1 Calibrate the scales on the Arduino serial monitor platform
 1. If running, stop the main control script (`scale_main_code.py`).
-2. Load Arduino with [arduino_code_calibrate](https://github.com/NeuralSyntaxLab/Bird-Scale-Methods-Article/blob/2b2e9f8543eca7a4c572af648797234ceb79ad54/arduino_code/arduino_code_calibrate/arduino_code_calibrate.ino).
+2. Load Arduino with [arduino_code_calibrate](https://github.com/NeuralSyntaxLab/perch-scale-system/blob/main/src/arduino/arduino_code_calibrate/arduino_code_calibrate.ino).
 3. Open the Serial Monitor: <br>
-On the Arduino IDE, click `Tools` -> `Serial Monitor` or click on the top right Serial Monitor logo. ![Screenshot 2024-07-22 at 11 08 46](https://github.com/user-attachments/assets/3e3f0b35-7ee0-4f2b-8f74-7176461e129b) 
+On the Arduino IDE, click `Tools` -> `Serial Monitor` or click on the top right Serial Monitor logo.
+
+<figure>
+  <img src="../images/arduino_ide_serial_monitor_1.png" alt=" Accessing the serial monitor on the Arduino IDE", width="1200">
+  <figcaption>
+    <strong>Figure 4.</strong> Accessing the serial monitor on the Arduino IDE platform.
+  </figcaption>
+</figure>
+
 When the serial monitor opens, it should immediately start communicating with the MUX system and notify the user with the satatus of every connected scale and instructions on how to calibrate. Be prepared with a calibrating item with known exact weight (preferably within a range of a few grams).
 
 * In general, output on the serial monitor will show detected scales and their calibration values (zero-offset and calibration factor) in the setup phase.
@@ -190,16 +211,26 @@ When the serial monitor opens, it should immediately start communicating with th
 5. Follow instructions on screen to complete the calibration process for the desired scales.
 
 #### Example 1: Calibrating in and already-used setup, but with new scale wiring
-<img src="https://github.com/user-attachments/assets/0ef7554e-a696-4800-8037-2b2d359d2b2f" width="1150" height="500">
-
+<figure>
+  <img src="../images/arduino_ide_calibration_1.png" alt="Calibration process part 1", width="1200">
+  <figcaption>
+    <strong>Figure 5.</strong> Example of the calibration process on the Arduino IDE.
+  </figcaption>
+</figure><br>
+<br>
 In this example, the first lines show that docking ports 0 and 6 are "active" (meaning that they are connected to the MUX board). Other ports / channels are not detected because they are not connected to the MUX board. The output will include the zero offset and calibration factor that are saved on the Arduino memory for these ports. 
 After the setup phase in which the Arduino passed information about channels 0 and 6, it moves on to the next phase. 
 Now every second a new line of data is given. We can see that it is a used setup because weighing data is given for disconnected scales. We will focus on data given from channels 0 and 6.
 
 #### Calibration process for scale 0 looks like this:
 
-![Arduino IDE calibration example 1_2](https://github.com/user-attachments/assets/152b89ef-84ee-4ad6-ab60-cbb147fc3d35)
-
+<figure>
+  <img src="../images/arduino_ide_calibration_2.png" alt="Calibration process part 2", width="1200">
+  <figcaption>
+    <strong>Figure 5.</strong> Example of the calibration process on the Arduino IDE, continued.
+  </figcaption>
+</figure><br>
+<br>
 1. After entering `c` in the message panel, the calibration began and the first prompt was given.
 2. User input was 0 - to calibrate scale on port 0.
 3. Next prompt instructed to clear the scale from any weight and press any key to continue - in this case the user input was `k` (could be any key).
