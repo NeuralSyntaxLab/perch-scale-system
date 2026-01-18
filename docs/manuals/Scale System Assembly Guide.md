@@ -35,6 +35,16 @@ When weighing several birds in one setup, it is highly recommended to use a cent
 5. Flexible Qwiic cables (multiple)
 6. Flexible Qwiic breadboard cable
 
+**Wiring the components in the control box:**
+Follow this diagram to connect each of the components mentioned above.
+
+<figure>
+  <img src="../images/control_box_wiring_diagram_1.png" alt="Schematic diagram of the control box and its components", width = "700">
+  <figcaption>
+    <strong>Figure 2.</strong> Image of the scale system control box form inside.
+  </figcaption>
+</figure>
+
 It should look like this: <br>
 
 <figure>
@@ -54,7 +64,3 @@ In order to easily manage connecting the scales to the control system, it is bes
     <strong>Figure 2.</strong> Image of the comunication cable. Note the connectors at both ends, where the smaller one goes to the parch-scale device and the larger one goes to the control box.
   </figcaption>
 </figure>
-
-
-
-ADD SCHEMATIC DIAGRAM - with JSM Pigtail connector, cable, and Picoblade connector.
