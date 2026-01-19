@@ -9,7 +9,7 @@ import serial.tools.list_ports
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 import pandas as pd
-
+from pathlib import Path
 
 SERIAL_PORT_DATA_RATE = 9600
 
@@ -29,7 +29,11 @@ POSSIBLE_DEVICE_PATHS = [
     "COM5" 
 ] 
 
+# Default config path (if none is supplied)
+SCRIPT_DIR = Path(__file__).resolve().parent
+DEFAULT_CONFIG_PATH = SCRIPT_DIR / "config_1.yaml"
 
+# Some formatting constants
 strf_format = '%Y-%m-%d %H:%M' # This is the format for extracting datetime object from the 'Time' column string
 scale_report_strf_time_format = '%Y-%m-%d %H:%M:%S' # This is the time format to be saved in the weight reports
 
@@ -109,16 +113,21 @@ def parse_arduino_data(arduino_raw_data):
 
 if __name__ == "__main__":
     print("Hello! This is the scale system controller script!\n")
-
     ## Part 1 - parse the config file
     parser = ArgumentParser()
 
     # `config` actually IS a required variable, but this way it'll be easier to raise a custom error when it isn't supplied
-    parser.add_argument("--config", required=False, help="The path for the config file we're working with.")
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=DEFAULT_CONFIG_PATH,
+        help="Path to config YAML file (defaults to config.yaml next to this script)"
+    )    
     args = parser.parse_args()
-
-    #config_path = args.config
-    config_path = r'/Users/cohenlab/Documents/Scale Methods Article/analyzer_codes/config_1.yaml'
+        
+    config_path = args.config
+    # Hardcoded config path for debugging / manual runs:
+    # config_path = r'/Users/cohenlab/Documents/Scale Methods Article/analyzer_codes/config_1.yaml'
     if config_path is None:
         raise Exception("No config file was supplied! Please rerun and add `--config=/path/to/config` ")
 
@@ -136,15 +145,15 @@ if __name__ == "__main__":
         sys.exit(1)
     
 
-    ## Part 2 - Initialize Slack
-    SLACK_CHANNEL_ID = "" # The Slack channel id for the `monitor_alerts` channel
-    SLACK_TOKEN = "" # combine the following lines in order to assemble the sack token
-    try:
-        slack_client = WebClient(token=SLACK_TOKEN)
-        print("\tSuccessfully initialized Slack client")
-    except Exception as err:
-        print(f"Failed initializing Slack client - `{err}`")
-        sys.exit(1)
+    # ## Part 2 - Initialize Slack - In the making...
+    # SLACK_CHANNEL_ID = "" # Your Slack channel id 
+    # SLACK_TOKEN = "" # Your Slack token here (keep to yourself, do not share)
+    # try:
+    #     slack_client = WebClient(token=SLACK_TOKEN)
+    #     print("\tSuccessfully initialized Slack client")
+    # except Exception as err:
+    #     print(f"Failed initializing Slack client - `{err}`")
+    #     sys.exit(1)
 
 
     ## Part 3 - This is the main part of the code, which runs in a loop and reads data from sensors, and controls the light switch.
@@ -157,17 +166,28 @@ if __name__ == "__main__":
     #     target_hour = int(config_data["slackingTime"][0:2])  # Example: 14 for 2 PM
     #     target_minute = int(config_data["slackingTime"][3:])  # Example: 30 for 2:30 PM
 
-    if config_data["scaleDataReadingAndSaving"]: # If user chose to collect scale data, print the bird catalog (which bird is connected to which channel).
-        bird_catalog = dict()
-        for i in range(8):
-            bird_id = config_data.get(f"channel{i}", 0)
-            bird_catalog[f"channel{i}"] = bird_id
-            if bird_id is not None:
-                print(f"bird connected to channel{i}: {bird_id}")
-        print("\n")
-    
-    first_contact = True
+    # Build bird catalog from config file
+    bird_catalog = {}
+    configured_birds = []
 
+    for i in range(8):
+        bird_id = config_data.get(f"channel{i}")  # missing → None
+        bird_catalog[f"channel{i}"] = bird_id
+
+        if bird_id:
+            configured_birds.append(bird_id)
+            print(f"bird connected to channel {i}: {bird_id}")
+
+    print()
+
+    if not configured_birds:
+        warning_msg = (
+            "WARNING: No birds configured in config file — "
+            "all channels are empty. Please check your config file."
+        )
+        print(warning_msg, file=sys.stderr)
+
+    first_contact = True
     while True: 
         while serial_device.in_waiting == 0: 
             if first_contact:
@@ -200,7 +220,7 @@ if __name__ == "__main__":
         print(f"\tWriting scale data to disk...")   
 
         # Generate base path for saving the weight reports to
-        path_to_weight_reports = os.path.join(config_data["scaleOutputBasePath"], "weight_reports")
+        path_to_weight_reports = os.path.join(config_data["dataOutputBasePath"], "weight_reports")
 
         scale_df = pd.DataFrame() # This dataframe will contain the current temporary time and weight data from all active scales
 

@@ -1,0 +1,4 @@
+PyYAML
+pyserial
+slack-sdk
+pandas

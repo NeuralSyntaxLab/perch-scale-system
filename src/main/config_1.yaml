@@ -1,17 +1,17 @@
 room_name: ControlTestRoom
 env_system: 1 # the ID of the environmental system (single control setup connected to up to 8 boxes)
-dataOutputBasePath: /path/to/output/folder/here # make sure to create the folder in the desired destination.
+dataOutputBasePath: '/path/to/output/folder/here' # make sure to create the folder in the desired destination.
 
 # CHANNELS 0-7: enter the name of the bird connected to each MUX port. This will be used to create a folder for each bird and store its weight reports. 
 # Leave disconnected channels empty.
-channel0: 'bird1'
+channel0: 
 channel1: 
 channel2: 
 channel3: 
 channel4: 
 channel5:
-channel6: 
-channel7: 'bird2'
+channel6: 'bird2'
+channel7: 
 
 # Future Update:
 # sendWeightReportToSlack: 0 # change to '1' in order to send weight report to slack daily
